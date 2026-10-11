@@ -2,17 +2,24 @@
 
 [Supertonic 3](https://github.com/supertone-inc/supertonic) (Supertone의 온디바이스 TTS, 31개 언어, 44.1kHz)을 FastAPI로 감싼 TTS 백엔드 서비스입니다. 모델은 ONNX Runtime으로 CPU에서 프로세스 내 실행됩니다.
 
-## 실행
+## 설치
 
 모델 파일(~385MB)은 `models/supertonic-3/`에 포함되어 있고 Git LFS로 관리됩니다. 클론 전에 Git LFS를 설치하세요 (`git lfs install`).
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python -m pip install -r requirements.txt
+```
+
+## 서버 실행
+
+```powershell
 .\.venv\Scripts\python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-인터넷 연결 없이 실행됩니다 (폐쇄망 가능). 테스트 페이지: http://127.0.0.1:8000/ / API 문서: http://127.0.0.1:8000/docs
+테스트 페이지: http://127.0.0.1:8000/ / API 문서: http://127.0.0.1:8000/docs / 종료: `Ctrl + C`
+
+실행 옵션, 백그라운드 서버 종료, venv 활성화/해제는 [docs/RUNNING.md](docs/RUNNING.md)를 참고하세요.
 
 ## API
 
@@ -81,13 +88,6 @@ client.audio.speech.create(model="tts-1", voice="F1", input="안녕하세요").w
 
 요청:  인증 → 입력 검사 → 보이스·언어 확인 → 대기 → 합성 → 인코딩 → 응답
 ```
-
-- **서버 시작 시**: ONNX 모델 4개와 보이스 10개를 한 번만 메모리에 올리고, 동시 합성 수 제한(기본 1)을 설정합니다.
-- **`POST /v1/tts` 요청 시**:
-  1. 인증(`401`), 입력 검사(`422`), 보이스·언어 확인(`400`)을 차례로 거칩니다.
-  2. 차례가 되면 별도 스레드에서 합성하고 요청한 포맷으로 인코딩합니다.
-  3. 오디오와 메타 헤더를 함께 응답합니다.
-- 처리 시간은 대부분 합성 단계에서 걸리며, `steps`로 속도와 품질을 조절합니다.
 
 자세한 내용은 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)를 참고하세요.
 
